@@ -5,52 +5,53 @@ on:
   pull_request:
 
 jobs:
-  verify:
-    name: Typecheck, build, and tests
+  verify-foundation:
+    name: Validate orchestration foundation
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
-          node-version: 22
-          cache: npm
+          python-version: "3.11"
 
-      - name: Install dependencies
-        run: npm ci
+      - name: Validate required files exist
+        run: |
+          test -f VISION.md
+          test -f PRODUCT.md
+          test -f PHASE1.md
+          test -f CONVENTIONS.md
+          test -f ARCHITECTURE.md
+          test -f TASKLIST.md
+          test -f QUALITY_BAR.md
+          test -f REVIEW_RUBRIC.md
+          test -f orchestration/current-task.json
+          test -f orchestration/tasks.json
+          test -f orchestration/prompts/builder.md
+          test -f orchestration/prompts/reviewer.md
+          test -f orchestration/prompts/product-reviewer.md
+          test -f scripts/start-task.sh
+          test -f scripts/advance-task.sh
+          test -f scripts/check-task-ready.sh
+          test -f scripts/controller.py
 
-      - name: Typecheck
-        run: npm run typecheck
+      - name: Validate JSON files
+        run: |
+          python3 -m json.tool orchestration/current-task.json > /dev/null
+          python3 -m json.tool orchestration/tasks.json > /dev/null
+          python3 -m json.tool orchestration/templates/task-result.json > /dev/null
+          python3 -m json.tool orchestration/templates/review-result.json > /dev/null
+          python3 -m json.tool orchestration/templates/product-result.json > /dev/null
 
-      - name: Build
-        run: npm run build
+      - name: Check bash script syntax
+        run: |
+          bash -n scripts/start-task.sh
+          bash -n scripts/advance-task.sh
+          bash -n scripts/check-task-ready.sh
 
-      - name: Run tests
-        run: npm run test
-
-  smoke:
-    name: Forge CLI smoke flow
-    runs-on: ubuntu-latest
-    needs: verify
-
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-          cache: npm
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build
-        run: npm run build
-
-      - name: Run smoke flow
-        run: npm run test:smoke
+      - name: Check Python syntax
+        run: |
+          python3 -m py_compile scripts/controller.py
