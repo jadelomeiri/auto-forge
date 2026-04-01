@@ -124,3 +124,25 @@ no magic layers
 optimize for readability
 
 optimize for agent navigation
+
+
+## Codex-Action-first foundation (smallest automatic loop)
+
+Primary orchestration path now:
+- GitHub issues/labels are the control plane.
+- GitHub Actions orchestrate role execution.
+- `openai/codex-action@v1` is the execution engine for Builder (first step implemented).
+
+Implemented now:
+1. Label an issue with `task:<id>`, `state:ready`, and `role:builder`.
+2. `.github/workflows/codex-builder.yml` runs automatically on the label event.
+3. The workflow validates labels and runs Codex Builder.
+4. A small explicit GitHub PR step commits and opens/updates a PR from produced changes.
+5. The workflow posts Builder output + PR URL to the issue, then hands off by applying `state:review` + `role:reviewer`.
+
+Not yet implemented:
+- Reviewer and Product-reviewer workflows.
+- Automatic merge or retries.
+
+This keeps CI honest: CI remains independent in `.github/workflows/ci.yml` and orchestration does not mark CI passed.
+

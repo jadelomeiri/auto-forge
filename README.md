@@ -85,9 +85,9 @@ What likely remains manual in the first step:
 Implement one GitHub-driven Builder loop for a single task (then generalize to 1..19):
 
 1. Create/confirm issue `Task1` with `task:1` + `state:ready`.
-2. Add label `role:builder` (or comment `/build task:1`).
+2. Add label `role:builder`.
 3. GitHub Action receives event and invokes Codex cloud Builder with task context docs.
-4. Builder opens/updates PR and posts summary comment.
+4. Builder runs via `openai/codex-action@v1` and posts a summary comment to the issue.
 5. Action sets `state:review` and applies `role:reviewer`.
 
 This is the smallest useful Codex-cloud-first foundation because it proves:
@@ -110,7 +110,7 @@ This is the smallest useful Codex-cloud-first foundation because it proves:
 1. **Builder workflow**
    - Trigger: issue labeled `role:builder` and `state:ready`.
    - Action: run Codex Builder for task id from `task:<id>` label.
-   - Outputs: PR link comment on issue, labels -> `state:review` + `role:reviewer`.
+   - Outputs: Builder result comment on the issue, labels -> `state:review` + `role:reviewer`.
 
 2. **Reviewer workflow**
    - Trigger: PR labeled `role:reviewer` or issue labeled `state:review`.
@@ -131,6 +131,20 @@ This is the smallest useful Codex-cloud-first foundation because it proves:
 
 ---
 
+
+## Confirmed vs inferred (Codex Action foundation)
+
+Confirmed in this repo today:
+- `.github/workflows/codex-builder.yml` triggers on `issues.labeled` when `role:builder` is applied.
+- The workflow requires `state:ready` and `task:<id>` labels.
+- It runs `openai/codex-action@v1`, requires non-empty Builder output plus repo changes, and then creates/updates a Builder PR.
+- It then relabels the issue from Builder to Reviewer (`state:review`, `role:reviewer`).
+
+Inferred / intentionally deferred in this first step:
+- PR creation is handled by an explicit GitHub step (`peter-evans/create-pull-request@v7`), not guaranteed directly by `openai/codex-action@v1`.
+- Reviewer and Product-reviewer automation are not wired yet.
+- Merge execution remains manual and CI remains independent.
+
 ## Exactly how one task is triggered
 
 Example: trigger Task 7.
@@ -140,7 +154,7 @@ Example: trigger Task 7.
 3. GitHub Action parses `task:7` and calls Codex cloud Builder with:
    - `TASKLIST.md` Task7 section
    - `VISION.md`, `PRODUCT.md`, `PHASE1.md`, `CONVENTIONS.md`, `ARCHITECTURE.md`, `QUALITY_BAR.md`, `REVIEW_RUBRIC.md`
-4. Builder creates/updates PR and posts a summary comment.
+4. Workflow creates/updates a Builder PR, then posts a summary comment with the PR URL.
 5. Workflow swaps labels to `state:review` + `role:reviewer`.
 
 ---
