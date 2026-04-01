@@ -47,3 +47,23 @@ python3 scripts/controller.py ci-failed
 Full chaining is possible only if your environment can run each agent non-interactively from a command (the `--*-cmd` values).
 
 If your local/CI agent runner cannot be called via command line yet, then invoking the Builder/Reviewer/Product commands is still the missing piece; the chain script is already in place to orchestrate once those commands exist.
+
+## Thin wrapper commands (smallest practical setup)
+
+To avoid hand-crafting long per-role command strings each run, use these wrappers:
+
+- `scripts/run-builder.sh`
+- `scripts/run-reviewer.sh`
+- `scripts/run-product.sh`
+
+Each wrapper currently uses an environment-specific placeholder executable (`forge-agent` by default, or `$FORGE_AGENT_CMD` if set). You must swap this for your real agent runner in your environment.
+
+Run Task 1 with one command:
+
+```bash
+python3 scripts/run-task-chain.py 1 \
+  --builder-cmd 'bash scripts/run-builder.sh {task_id}' \
+  --reviewer-cmd 'bash scripts/run-reviewer.sh {task_id}' \
+  --product-cmd 'bash scripts/run-product.sh {task_id}'
+```
+
