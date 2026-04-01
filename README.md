@@ -159,6 +159,51 @@ Example: trigger Task 7.
 
 ---
 
+
+## Implemented now: minimal Builder-only GitHub loop
+
+A minimal Builder loop is implemented in `.github/workflows/builder-loop.yml`.
+
+### Exact event/trigger model
+
+- `issues.labeled` when label `role:builder` is added.
+- `issue_comment.created` with `/build` for manual trigger parity.
+- `issue_comment.created` with `/builder-done pr:<pr-number-or-url>` to complete Builder.
+
+### What this workflow does
+
+1. Validates task identification from GitHub issue labels:
+   - requires `task:<id>` label
+   - requires `state:ready`
+2. Moves issue label state to `state:in-progress`.
+3. Posts explicit instructions to run Builder in Codex cloud (no custom webhook service).
+4. On `/builder-done pr:<...>` comment:
+   - records PR reference in an issue comment
+   - transitions labels to `state:review` + `role:reviewer`
+5. Posts a reusable, standard Builder brief so operators do not need to invent a new prompt each task.
+
+### Honest boundary for Codex-cloud invocation
+
+This workflow intentionally avoids custom infrastructure. The remaining practical manual step is explicit:
+- run Builder in Codex cloud against this repository/task
+- open/update PR
+- comment `/builder-done pr:<pr-number-or-url>` on the issue
+
+CI remains separate in `.github/workflows/ci.yml`; the Builder loop does not mark CI passing.
+
+### Reusable task template format
+
+Use `.github/ISSUE_TEMPLATE/task-builder.md` for task issues. It preloads:
+- default labels `state:ready` + `role:builder`
+- required context docs
+- exact trigger and completion command format
+
+The workflow then posts a standard Codex Builder brief with:
+- repo + issue link
+- task label id
+- fixed source-of-truth docs
+- fixed constraints/output contract
+
 ## What remains manual after first step
 
 After implementing only the first Builder loop:
