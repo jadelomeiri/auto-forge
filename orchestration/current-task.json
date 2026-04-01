@@ -1,0 +1,11 @@
+{
+  "current_task": 1,
+  "status": "pending",
+  "branch": "",
+  "pr_number": null,
+  "builder_status": "not_started",
+  "reviewer_status": "not_started",
+  "product_status": "not_started",
+  "ci_status": "not_started",
+  "last_updated": ""
+}

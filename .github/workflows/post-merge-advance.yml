@@ -1,0 +1,22 @@
+name: Advance Task After Merge
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  advance:
+    if: github.event.pull_request.merged == true
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Advance task
+        run: python3 scripts/controller.py advance

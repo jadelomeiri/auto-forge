@@ -1,0 +1,24 @@
+name: Task Gate
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Show current task state
+        run: cat orchestration/current-task.json
+
+      - name: Check merge readiness
+        run: python3 scripts/controller.py ready
