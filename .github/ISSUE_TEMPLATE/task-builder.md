@@ -25,7 +25,8 @@ labels: ["state:ready", "role:builder"]
 - `REVIEW_RUBRIC.md`
 
 ## Trigger
-Add label `role:builder` (or comment `/build`) to start the Builder loop.
+- Add label `role:builder` to trigger automatic Builder execution (`codex-builder.yml`).
+- If automatic execution is unavailable, comment `/build` to trigger the manual fallback loop.
 
 ## Completion signal
 When the Codex Builder PR is open/updated, comment:

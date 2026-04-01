@@ -160,22 +160,23 @@ Example: trigger Task 7.
 ---
 
 
-## Implemented now: minimal Builder-only GitHub loop
+## Implemented now: Builder automation + manual fallback loop
 
-A minimal Builder loop is implemented in `.github/workflows/builder-loop.yml`.
+Automatic Builder execution is implemented in `.github/workflows/codex-builder.yml`.
+Manual fallback handling is implemented in `.github/workflows/builder-loop.yml`.
 
 ### Exact event/trigger model
 
-- `issues.labeled` when label `role:builder` is added.
-- `issue_comment.created` with `/build` for manual trigger parity.
-- `issue_comment.created` with `/builder-done pr:<pr-number-or-url>` to complete Builder.
+- Automatic path: `issues.labeled` when label `role:builder` is added (`codex-builder.yml`).
+- Manual fallback path: `issue_comment.created` with `/build` (`builder-loop.yml`).
+- Manual completion path: `issue_comment.created` with `/builder-done pr:<pr-number-or-url>` (`builder-loop.yml`).
 
 ### What this workflow does
 
-1. Validates task identification from GitHub issue labels:
+1. Manual fallback validates task identification from GitHub issue labels:
    - requires `task:<id>` label
    - requires `state:ready`
-2. Moves issue label state to `state:in-progress`.
+2. Moves issue label state to `state:in-progress` (manual fallback only).
 3. Posts explicit instructions to run Builder in Codex cloud (no custom webhook service).
 4. On `/builder-done pr:<...>` comment:
    - records PR reference in an issue comment
@@ -184,7 +185,7 @@ A minimal Builder loop is implemented in `.github/workflows/builder-loop.yml`.
 
 ### Honest boundary for Codex-cloud invocation
 
-This workflow intentionally avoids custom infrastructure. The remaining practical manual step is explicit:
+The fallback workflow intentionally avoids custom infrastructure. The remaining practical manual step is explicit:
 - run Builder in Codex cloud against this repository/task
 - open/update PR
 - comment `/builder-done pr:<pr-number-or-url>` on the issue
