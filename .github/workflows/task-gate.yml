@@ -21,4 +21,4 @@ jobs:
         run: cat orchestration/current-task.json
 
       - name: Check merge readiness
-        run: python3 scripts/controller.py ready
+        run: bash scripts/check-task-ready.sh
