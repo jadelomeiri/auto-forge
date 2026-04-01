@@ -1,8 +1,6 @@
 name: Builder Loop
 
 on:
-  issues:
-    types: [labeled]
   issue_comment:
     types: [created]
 
@@ -14,8 +12,7 @@ permissions:
 jobs:
   request-builder:
     if: |
-      (github.event_name == 'issues' && github.event.action == 'labeled' && github.event.label.name == 'role:builder') ||
-      (github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/build'))
+      github.event_name == 'issue_comment' && startsWith(github.event.comment.body, '/build')
     runs-on: ubuntu-latest
 
     steps:
@@ -75,7 +72,7 @@ jobs:
             const owner = context.repo.owner;
             const repo = context.repo.repo;
             const issueUrl = context.payload.issue.html_url;
-            const body = `Builder requested for task:${task_id}.\n\nUse this standard Codex Builder brief (copy/paste as-is):\n\n\`\`\`text\nImplement task:${task_id} for ${owner}/${repo}.\nSource of truth:\n- GitHub issue: ${issueUrl}\n- TASKLIST.md (task:${task_id})\n- VISION.md\n- PRODUCT.md\n- PHASE1.md\n- CONVENTIONS.md\n- ARCHITECTURE.md\n- QUALITY_BAR.md\n- REVIEW_RUBRIC.md\n\nConstraints:\n- Implement only this task.\n- Keep CI separate/honest.\n- Do not implement reviewer/product automation.\n\nExpected output:\n- Open or update a PR with code changes for task:${task_id}.\n- Post a concise implementation summary in the PR body.\n\`\`\`\n\nAfter PR is open/updated, comment here:\n\`/builder-done pr:<pr-number-or-url>\``;
+            const body = `Manual Builder fallback requested for task:${task_id}.\n\nUse this standard Codex Builder brief (copy/paste as-is):\n\n\`\`\`text\nImplement task:${task_id} for ${owner}/${repo}.\nSource of truth:\n- GitHub issue: ${issueUrl}\n- TASKLIST.md (task:${task_id})\n- VISION.md\n- PRODUCT.md\n- PHASE1.md\n- CONVENTIONS.md\n- ARCHITECTURE.md\n- QUALITY_BAR.md\n- REVIEW_RUBRIC.md\n\nConstraints:\n- Implement only this task.\n- Keep CI separate/honest.\n- Do not implement reviewer/product automation.\n\nExpected output:\n- Open or update a PR with code changes for task:${task_id}.\n- Post a concise implementation summary in the PR body.\n\`\`\`\n\nAfter PR is open/updated, comment here:\n\`/builder-done pr:<pr-number-or-url>\`\n\nNote: label-driven automatic Builder execution is handled by \`codex-builder.yml\`.`;
 
             await github.rest.issues.createComment({
               ...context.repo,
