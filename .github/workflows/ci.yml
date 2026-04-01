@@ -37,6 +37,7 @@ jobs:
           test -f scripts/advance-task.sh
           test -f scripts/check-task-ready.sh
           test -f scripts/controller.py
+          test -f scripts/run-task-chain.py
 
       - name: Validate JSON files
         run: |
@@ -55,3 +56,4 @@ jobs:
       - name: Check Python syntax
         run: |
           python3 -m py_compile scripts/controller.py
+          python3 -m py_compile scripts/run-task-chain.py
